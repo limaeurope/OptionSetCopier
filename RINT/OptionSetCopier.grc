@@ -12,9 +12,7 @@
 'STR#' 32506 "Solid Operations Menu" {
 /* [   ] */		"LIMA"
 /* [   ] */		"OptionSetCopier"
-/* [  1] */		"Copy Option Set"
-/* [  2] */		"Open Palette"
-
+/* [  1] */		"Copy Option Sets"
 }
 
 /* Localizable string resource(s) */
@@ -30,12 +28,12 @@
 'GDLG'	32400	Modal		 40  40 490 288 		"Copy Property Options Sets" {
 /* [  1] */ Button				270  254    70  24  LargePlain "OK"
 /* [  2] */ Button				380  254   100  24  LargePlain "Cancel"
-/* [  3] */ PopupControl        	10    10   200  24  24 5
+/* [  3] */ PopupControl         10    10   200  24  24 5
 /* [  4] */ Button				220   10    50  24  LargePlain ">>"
-/* [  5] */ PopupControl        	280   10   200  24  24 5
+/* [  5] */ PopupControl        280   10   200  24  24 5
 /* [  6] */ MultiLineEdit      	10    44   200 200  LargePlain VScroll 
 /* [  7] */ MultiLineEdit      	280   44   200 200  LargePlain VScroll 
-
+/* [  8] */ CheckBox			 10  254  260 24  LargePlain "Append options (instead of overwriting)"
 }
 
 'DLGH'  32400  DLG_32500_Fill_Settings {

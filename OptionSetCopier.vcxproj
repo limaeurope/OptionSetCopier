@@ -227,7 +227,13 @@
     <Library Include="$(ACDevKitModules)\InputOutput\Win\InputOutputImp.lib">
       <FileType>Document</FileType>
     </Library>
-    <Library Include="$(ACDevKitModules)\ObjectDatabase\Win\ObjectDatabaseImp.LIB">
+    <Library Condition="'$(ACVersion)'== 24" Include="$(ACDevKitModules)\ObjectDatabase\Win\ObjectDatabaseImp.LIB">
+      <FileType>Document</FileType>
+    </Library>
+    <Library Condition="'$(ACVersion)'== 25" Include="$(ACDevKitModules)\ObjectDatabase\Win\ObjectDatabaseImp.LIB">
+      <FileType>Document</FileType>
+    </Library>
+    <Library Condition="'$(ACVersion)'== 26" Include="$(ACDevKitModules)\RS\Win\RSImp.LIB">
       <FileType>Document</FileType>
     </Library>
     <Library Condition="'$(ACVersion)'=='25'" Include="$(ACDevKitModules)\RS\Win\RSImp.lib">

@@ -8,15 +8,15 @@
 // [SG compatible] - Yes
 // *****************************************************************************
 
-#if !defined _ELEMENT_TEST_H
-#define _ELEMENT_TEST_H
+#if !defined _OPTION_SET_COPIER_H
+#define _OPTION_SET_COPIER_H
 
-void	Do_SolidOperation_Create (void);
-void	Do_SolidLink_Create (void);
-void	Do_SolidLink_Remove (void);
-void	Do_SolidLink_Targets (void);
-void	Do_SolidLink_Operators (void);
-void	CopyOptionSet (bool isBoundingBoxConsidered);
-static GSErrCode	Do_PaletteInit();
+//void	Do_SolidOperation_Create (void);
+//void	Do_SolidLink_Create (void);
+//void	Do_SolidLink_Remove (void);
+//void	Do_SolidLink_Targets (void);
+//void	Do_SolidLink_Operators (void);
+//void	CopyOptionSet ();
+static GSErrCode	Do_CopyOptionSets();
 
 #endif

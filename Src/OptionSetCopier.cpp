@@ -17,23 +17,22 @@
 // ---------------------------------- Types ------------------------------------
 
 typedef struct {
-	short			dialID;					/* dialog ID of the palette */
-	bool			hiddenByUser;			/* palette was hidden from menu by the user */
-	bool			hiddenByAC;				/* palette was hidden through the API callback */
 	GS::HashTable<Int64, API_PropertyDefinition> definitionsTable;
 	Int64 iSource;
 	Int64 iTarget;
+	Int32 iAppend;
 } CntlDlgData;
 
 // ---------------------------------- Variables --------------------------------
 
-static API_Guid	gGuid = APINULLGuid;
-static API_Guid	gLastRenFiltGuid = APINULLGuid;
+//static API_Guid	gGuid = APINULLGuid;
+//static API_Guid	gLastRenFiltGuid = APINULLGuid;
 static CntlDlgData			cntlDlgData;
 
 // ---------------------------------- Prototypes -------------------------------
 
 
+//TODO remove
 void CopyOptionSet(bool isBoundingBoxConsidered)
 {
 	GSErrCode				err;
@@ -90,70 +89,118 @@ void CopyOptionSet(bool isBoundingBoxConsidered)
 	err = ACAPI_Property_ChangePropertyDefinition(_g2);
 }
 
+
 // -----------------------------------------------------------------------------
 // Load a localisable Unicode string from resource
 // -----------------------------------------------------------------------------
 
-static void		GetStringFromResource(GS::UniString* buffer, short resID, short stringID)
+//static void		GetStringFromResource(GS::UniString* buffer, short resID, short stringID)
+//{
+//	if (buffer != nullptr && !RSGetIndString(buffer, resID, stringID, ACAPI_GetOwnResModule()))
+//		buffer->Clear();
+//
+//	return;
+//}		// GetStringFromResource
+
+
+static GS::UniString SetOptionsView(Int64 i_iIdx)
 {
-	if (buffer != nullptr && !RSGetIndString(buffer, resID, stringID, ACAPI_GetOwnResModule()))
-		buffer->Clear();
+	if (i_iIdx == 0)
+		return GS::UniString{};
+	GS::Array<API_SingleEnumerationVariant> _sourceVariants = cntlDlgData.definitionsTable.Get(i_iIdx).possibleEnumValues;
+	GS::UniString _text{};
 
-	return;
-}		// GetStringFromResource
+	for (auto _v : _sourceVariants)
+	{
+		_text += _v.displayVariant.uniStringValue;
+		_text += "\n";
+	}
 
-static void Do_CopyPropertyOptions(Int64 iSource, Int64 iTarget)
+	return _text;
+}
+
+
+static void Do_CopyPropertyOptions()
 {
 	GSErrCode err;
 	GS::UniString _text{};
 
 	auto sourceDef = cntlDlgData.definitionsTable.Get(cntlDlgData.iSource);
 	auto targetDef = cntlDlgData.definitionsTable.Get(cntlDlgData.iTarget);
-	targetDef.possibleEnumValues.Append(sourceDef.possibleEnumValues);
-
-	for (auto _v : targetDef.possibleEnumValues)
-	{
-		_text += _v.displayVariant.uniStringValue;
-		_text += "\n";
-	}
-
-	DGSetItemText(32400, 7, _text);
+	
+	if (cntlDlgData.iAppend)
+		targetDef.possibleEnumValues.Append(sourceDef.possibleEnumValues);
+	else
+		targetDef.possibleEnumValues = sourceDef.possibleEnumValues;
 
 	err = ACAPI_Property_ChangePropertyDefinition(targetDef);
+
+	cntlDlgData.definitionsTable[cntlDlgData.iTarget] = targetDef;
+	
+	_text = SetOptionsView(cntlDlgData.iTarget);
+
+	DGSetItemText(32400, 7, _text);
 }
+
+
+static void RefreshUI(short i_dialID) {
+	GS::UniString _text = SetOptionsView(cntlDlgData.iSource);
+
+	DGSetItemText(i_dialID, 6, _text);
+
+	_text = SetOptionsView(cntlDlgData.iTarget);
+
+	DGSetItemText(i_dialID, 7, _text);
+
+	if (cntlDlgData.iSource == 0\
+		|| cntlDlgData.iTarget == 0\
+		|| cntlDlgData.iSource == cntlDlgData.iTarget)
+		DGDisableItem(i_dialID, 4);
+	else
+		DGEnableItem(i_dialID, 4);
+
+	DGSetItemValLong(i_dialID, 8, cntlDlgData.iAppend);
+}
+
 
 static short DGCALLBACK CntlDlgCallBack(short message, short dialID, short item, DGUserData userData, DGMessageData msgData)
 {
-	short				result = 0;
+	short result = 0;
 	GS::UniString _text{};
 	API_PropertyDefinition _def;
 
 	switch (message) {
 	case DG_MSG_INIT:
 	{
-		//DGSetItemText(dialID, 3, _teszt);
-		//DGSetItemText(dialID, 6, _teszt);
-		GSErrCode				err;
-		GS::Array<API_PropertyGroup> groups;
-		short _i = 0;
+		GSErrCode						err;
+		GS::Array<API_PropertyGroup>	groups;
+		cntlDlgData.iAppend = 1;
+
+		DGPopUpInsertItem(dialID, 3, DG_LIST_BOTTOM);
+		DGPopUpInsertItem(dialID, 5, DG_LIST_BOTTOM);
+		short _i = 1;
+
 		err = ACAPI_Property_GetPropertyGroups(groups);
 
 		for (API_PropertyGroup _group : groups)
 		{
-			GS::Array<API_PropertyDefinition> _defs;
-
-			err = ACAPI_Property_GetPropertyDefinitions(_group.guid, _defs);
-
-			for (auto _def : _defs)
+			if (_group.groupType == API_PropertyCustomGroupType)
 			{
-				if (_def.possibleEnumValues.GetSize())
-				{
-					cntlDlgData.definitionsTable.Add(_i++, _def);
+				GS::Array<API_PropertyDefinition> _defs;
+				
+				err = ACAPI_Property_GetPropertyDefinitions(_group.guid, _defs);
 
-					DGPopUpInsertItem(dialID, 3, DG_LIST_BOTTOM);
-					DGPopUpSetItemText(dialID, 3, DG_LIST_BOTTOM, _def.name);
-					DGPopUpInsertItem(dialID, 5, DG_LIST_BOTTOM);
-					DGPopUpSetItemText(dialID, 5, DG_LIST_BOTTOM, _def.name);
+				for (auto _def : _defs)
+				{
+					if (_def.possibleEnumValues.GetSize())
+					{
+						cntlDlgData.definitionsTable.Add(_i++, _def);
+
+						DGPopUpInsertItem(dialID, 3, DG_LIST_BOTTOM);
+						DGPopUpSetItemText(dialID, 3, DG_LIST_BOTTOM, _def.name);
+						DGPopUpInsertItem(dialID, 5, DG_LIST_BOTTOM);
+						DGPopUpSetItemText(dialID, 5, DG_LIST_BOTTOM, _def.name);
+					}
 				}
 			}
 		}
@@ -167,9 +214,12 @@ static short DGCALLBACK CntlDlgCallBack(short message, short dialID, short item,
 			result = item;
 			break;
 		case 4:
-			Do_CopyPropertyOptions(cntlDlgData.iSource, cntlDlgData.iTarget);
+			Do_CopyPropertyOptions();
+			RefreshUI(dialID);
 			break;
 		}
+
+		break;
 	case DG_MSG_CLOSE:
 		result = item;
 		if (item == DG_OK) {
@@ -178,32 +228,19 @@ static short DGCALLBACK CntlDlgCallBack(short message, short dialID, short item,
 	case DG_MSG_CHANGE:
 		switch (item) {
 		case 3:
-			cntlDlgData.iSource = msgData;
+			cntlDlgData.iSource = DGPopUpGetSelected(dialID, 3) - 1;
 
-			_def = cntlDlgData.definitionsTable.Get(cntlDlgData.iSource);
-
-			for (auto _v : _def.possibleEnumValues)
-			{
-				_text += _v.displayVariant.uniStringValue;
-				_text += "\n";
-			}
-
-			DGSetItemText(dialID, 6, _text);
+			RefreshUI(dialID);
 
 			break;
 		case 5 :
-			cntlDlgData.iTarget = msgData;
+			cntlDlgData.iTarget = DGPopUpGetSelected(dialID, 5) - 1;
 
-			_def = cntlDlgData.definitionsTable.Get(cntlDlgData.iTarget);
+			RefreshUI(dialID);
 
-			for (auto _v : _def.possibleEnumValues)
-			{
-				_text += _v.displayVariant.uniStringValue;
-				_text += "\n";
-			}
-
-			DGSetItemText(dialID, 7, _text);
-
+			break;
+		case 8:
+			cntlDlgData.iAppend = DGGetItemValLong(dialID, 8);
 			break;
 			}
 		break;
@@ -212,24 +249,15 @@ static short DGCALLBACK CntlDlgCallBack(short message, short dialID, short item,
 	return result;
 }
 
-static GSErrCode	Do_PaletteInit()
+
+static GSErrCode	Do_CopyOptionSets()
 {
 	GSErrCode		err = NoError;
 
 	err = DGModalDialog(ACAPI_GetOwnResModule(), 32400, ACAPI_GetOwnResModule(), CntlDlgCallBack, (DGUserData)&cntlDlgData);
 
 	return err;
-}		// Do_PaletteInit
-
-static void		Do_PaletteClose(void)
-{
-	if (cntlDlgData.dialID != 0 && DGIsDialogOpen(cntlDlgData.dialID))
-		DGModelessClose(cntlDlgData.dialID);
-
-	cntlDlgData.dialID = 0;
-
-	return;
-}		// Do_PaletteClose
+}		// Do_CopyOptionSets
 
 
 // -----------------------------------------------------------------------------
@@ -242,8 +270,7 @@ GSErrCode __ACENV_CALL ElementsSolidOperation (const API_MenuParams *menuParams)
 		[&] () -> GSErrCode {
 
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		CopyOptionSet(false);				break;
-				case 2:		Do_PaletteInit();					break;
+				case 1:		Do_CopyOptionSets();				break;
 				default:										break;
 			}
 
