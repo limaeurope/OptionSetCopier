@@ -1,0 +1,49 @@
+﻿/* *****************************************************************************
+// Localizable resource description for the Element Test Add-On
+// ****************************************************************************/
+
+
+'STR#' 32000 "Add-on Name and Description" {
+/* [  1] */		"OptionSetCopier"
+/* [  2] */		"Add-on; Copies a Property's Option Set to another Property"
+}
+
+
+'STR#' 32506 "Solid Operations Menu" {
+/* [   ] */		"LIMA"
+/* [   ] */		"OptionSetCopier"
+/* [  1] */		"Copy Option Set"
+/* [  2] */		"Open Palette"
+
+}
+
+/* Localizable string resource(s) */
+
+'STR#' 32600 "Variable Menuitem Strings" {
+/* [  1] */			"Open Control Palette"
+/* [  2] */			"Close Control Palette"
+}
+
+
+/* Localizable dialog resource(s) with the accompanying help resource(s) */
+
+'GDLG'	32400	Modal		 40  40 490 288 		"Copy Property Options Sets" {
+/* [  1] */ Button				270  254    70  24  LargePlain "OK"
+/* [  2] */ Button				380  254   100  24  LargePlain "Cancel"
+/* [  3] */ PopupControl        	10    10   200  24  24 5
+/* [  4] */ Button				220   10    50  24  LargePlain ">>"
+/* [  5] */ PopupControl        	280   10   200  24  24 5
+/* [  6] */ MultiLineEdit      	10    44   200 200  LargePlain VScroll 
+/* [  7] */ MultiLineEdit      	280   44   200 200  LargePlain VScroll 
+
+}
+
+'DLGH'  32400  DLG_32500_Fill_Settings {
+1	""							Button_0
+2	""							Button_1
+2	""							SingleSelList_1
+4	""							Button_2
+5	""							SingleSelList_2
+6	""							MultiLineEdit_1
+7	""							MultiLineEdit_2
+}
