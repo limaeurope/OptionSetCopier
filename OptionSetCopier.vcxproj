@@ -233,10 +233,10 @@
     <Library Condition="'$(ACVersion)'== 25" Include="$(ACDevKitModules)\ObjectDatabase\Win\ObjectDatabaseImp.LIB">
       <FileType>Document</FileType>
     </Library>
-    <Library Condition="'$(ACVersion)'== 26" Include="$(ACDevKitModules)\RS\Win\RSImp.LIB">
+    <Library Condition="'$(ACVersion)'== 25" Include="$(ACDevKitModules)\RS\Win\RSImp.LIB">
       <FileType>Document</FileType>
     </Library>
-    <Library Condition="'$(ACVersion)'=='25'" Include="$(ACDevKitModules)\RS\Win\RSImp.lib">
+    <Library Condition="'$(ACVersion)'=='26'" Include="$(ACDevKitModules)\RS\Win\RSImp.lib">
       <FileType>Document</FileType>
     </Library>
   </ItemGroup>
